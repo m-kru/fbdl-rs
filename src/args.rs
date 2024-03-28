@@ -1,6 +1,10 @@
 use std::fmt;
 use std::path::PathBuf;
 
+fn print_version() {
+    println!("{}", env!("CARGO_PKG_VERSION"));
+}
+
 fn print_help() {
     println!(
         "Functional Bus Description Language compiler front-end.
@@ -153,6 +157,9 @@ pub fn parse() -> Args {
     for (i, arg) in std::env::args().skip(1).enumerate() {
         if arg == "-help" {
             print_help();
+            std::process::exit(0);
+        } else if arg == "-version" {
+            print_version();
             std::process::exit(0);
         }
 
