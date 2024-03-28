@@ -23,8 +23,6 @@ Flags:
 
 Parameters:
   -main name  Name of the main bus. Useful for testbenches.
-  -p [path]   Dump parse results to a file (default path is prs.txt).
-  -i [path]   Dump instantiation results to a file (default path is ins.txt).
   -r [path]   Dump registerification results to a file (default path is reg.json).
   -c [path]   Dump packages constants to a file (default path is const.json). ",
         env!("CARGO_PKG_VERSION")
@@ -167,16 +165,16 @@ pub fn parse() -> Args {
         if i == args_len - 2 {
             if let State::Arg(param) = state {
                 eprintln!(
-                    "missing path to .fbd file or argument for parameter '{}'",
+                    "missing path to main .fbd file or argument for parameter '{}'",
                     param
                 );
                 std::process::exit(1);
             } else {
                 if is_valid_flag(&arg) {
-                    eprintln!("expected path to .fbd file, found flag '{}'", arg);
+                    eprintln!("expected path to main .fbd file, found flag '{}'", arg);
                     std::process::exit(1);
                 } else if is_valid_param(&arg) {
-                    eprintln!("expected path to .fbd file, found parameter '{}'", arg);
+                    eprintln!("expected path to main .fbd file, found parameter '{}'", arg);
                     std::process::exit(1);
                 } else {
                     args.main_file_path = PathBuf::from(arg);
