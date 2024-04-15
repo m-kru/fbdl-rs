@@ -1,22 +1,17 @@
 #[derive(Debug, PartialEq)]
-pub struct Position {
+pub struct Position<'a> {
     pub start: usize,
     pub end: usize,
     pub line: usize,
     pub column: usize,
-}
-
-#[derive(Debug)]
-pub struct Error {
-    msg: String,
-    tokens: Vec<Token>,
+    pub src: &'a [u8],
 }
 
 macro_rules! tokens {
     ( $( $name:ident ),* ) => {
         #[derive(Debug, PartialEq)]
-        pub enum Token {
-            $( $name{pos: Position}, )*
+        pub enum Token<'a> {
+            $( $name{pos: Position<'a>}, )*
         }
     };
 }
@@ -85,7 +80,7 @@ tokens! {
     Atomic,
     ByteWriteEnable,
     Clear,
-    Celay,
+    Delay,
     EnableInitValue,
     EnableResetValue,
     Groups,

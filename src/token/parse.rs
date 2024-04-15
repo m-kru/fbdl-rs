@@ -1,13 +1,16 @@
-use super::token::{Error, Position, Token};
+use super::error::*;
+use super::token::*;
 
-struct Context {
+struct Context<'a> {
+    src: &'a [u8],
     line: usize,
     indent: usize,
     idx: usize,            // Current buffer index
     nl_idx: Option<usize>, // Previous newline index
+    toks: Vec<Token<'a>>,  // Token stream
 }
 
-impl Context {
+impl Context<'_> {
     // Returns column number for current index.
     fn col(&self) -> usize {
         match self.nl_idx {
@@ -15,45 +18,58 @@ impl Context {
             Some(nl) => self.idx - nl,
         }
     }
+
+    // Returns true if parsing is finished.
+    fn end(&self) -> bool {
+        self.idx == self.src.len()
+    }
 }
 
 pub fn parse(src: &[u8]) -> Result<Vec<Token>, Error> {
-    let mut toks: Vec<Token> = vec![];
     let mut ctx = Context {
+        src: src,
         line: 1,
         indent: 0,
         idx: 0,
         nl_idx: None,
+        toks: vec![],
     };
 
     loop {
-        if ctx.idx == src.len() {
+        if ctx.end() {
             break;
         }
 
         let res = match src[ctx.idx] {
-            b',' => parse_comma(&mut ctx, src),
+            b',' => parse_comma(&mut ctx),
             _ => todo!(),
         };
 
-        match res {
-            Ok(tok) => toks.push(tok),
-            Err(err) => todo!(),
-        }
+        let tok = res?;
+        ctx.toks.push(tok);
     }
 
-    Ok(toks)
+    Ok(ctx.toks)
 }
 
-fn parse_comma(ctx: &mut Context, src: &[u8]) -> Result<Token, Error> {
+fn parse_comma<'a>(ctx: &mut Context<'a>) -> Result<Token<'a>, Error<'a>> {
     let comma = Token::Comma {
         pos: Position {
             start: ctx.idx,
             end: ctx.idx,
             line: ctx.line,
             column: ctx.col(),
+            src: ctx.src,
         },
     };
-    ctx.idx += 1;
-    Ok(comma)
+
+    if let Some(Token::Comma { .. }) = ctx.toks.last() {
+        Err(Error {
+            msg: "redundant ','",
+            toks: vec![comma],
+        })
+    } else {
+        ctx.idx += 1;
+        Ok(comma)
+    }
 }

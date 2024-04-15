@@ -1,3 +1,4 @@
+use super::error::Error;
 use super::parse::parse;
 use super::token::{Position, Token};
 
@@ -13,8 +14,30 @@ fn test_comma_parsing() {
                 start: 0,
                 end: 0,
                 line: 1,
-                column: 1
+                column: 1,
+                src: src
             }
         }]
-    )
+    );
+
+    let src = b",,";
+    if let Err(err) = parse(src) {
+        assert_eq!(
+            err,
+            Error {
+                msg: "redundant ','",
+                toks: vec![Token::Comma {
+                    pos: Position {
+                        start: 1,
+                        end: 1,
+                        line: 1,
+                        column: 2,
+                        src: src
+                    }
+                }]
+            }
+        )
+    } else {
+        panic!("expected error")
+    }
 }
