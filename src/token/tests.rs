@@ -1,6 +1,5 @@
-use super::error::Error;
 use super::parse::parse;
-use super::token::{Position, Token};
+use super::*;
 
 #[test]
 fn test_comma_parsing() {

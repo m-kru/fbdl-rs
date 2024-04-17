@@ -1,5 +1,4 @@
-use super::error::*;
-use super::token::*;
+use super::*;
 
 const VALID_AFTER_NUMBER: &'static [u8] = &[
     b' ', b'\t', b'\n', b'(', b')', b']', b'-', b'+', b'*', b'/', b'%', b'=', b'<', b'>', b';',
