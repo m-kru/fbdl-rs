@@ -80,6 +80,7 @@ pub fn parse(src: &[u8]) -> Result<Vec<Token>, Error> {
                 parse_number(&mut ctx)
             }
             b',' => parse_comma(&mut ctx),
+            b';' => parse_semicolon(&mut ctx),
             _ => todo!(),
         };
 
@@ -140,5 +141,19 @@ fn parse_comma<'a>(ctx: &mut Context<'a>) -> Result<Token<'a>, Error<'a>> {
     } else {
         ctx.idx += 1;
         Ok(comma)
+    }
+}
+
+fn parse_semicolon<'a>(ctx: &mut Context<'a>) -> Result<Token<'a>, Error<'a>> {
+    let semicolon = Token::Semicolon { pos: ctx.pos() };
+
+    if let Some(Token::Semicolon { .. }) = ctx.toks.last() {
+        Err(Error {
+            msg: "redundant ';'".to_string(),
+            toks: vec![semicolon],
+        })
+    } else {
+        ctx.idx += 1;
+        Ok(semicolon)
     }
 }
